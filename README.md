@@ -1,92 +1,120 @@
-# Pdf-Sage
-## Project Overview
-PDFSage is an intelligent web tool to extract key insights from your PDF documents using advanced natural language processing. Upload any PDF, ask questions, and get context-aware answers or summaries, all through a modern, easy-to-use interface. Suitable for students, researchers, or anyone who wants smarter document analysis and understanding.
+# PDFSage - Multi-Agent AI PDF Question Answering System
+## Overview
+PDFSage is a powerful AI system that enables interactive question answering over domain-specific PDFs, combined with real-time web and scientific paper search. It utilizes retrieval-augmented generation (RAG) on uploaded documents alongside live web (SerpAPI) and ArXiv agents, synthesizing answers via Groq’s large language model API. The system smartly orchestrates multiple agents based on query content and provides transparent logging and traceability.
 
-## Architecture & Approach
-### Frontend:
+## Features
+1. Uploads PDF files, automatically extract and chunk text.
 
-Pure HTML, CSS, and vanilla JavaScript UI.
+2. Creates vector embeddings of PDF chunks with SentenceTransformer.
 
-Allows PDF upload and interactive Q&A.
+3. Performs semantic search using FAISS to retrieve relevant document sections.
 
-### Backend:
+4. Uses SerpAPI to fetch latest web search results, fallback to DuckDuckGo if needed.
 
-FastAPI REST API with endpoints for PDF upload and question answering.
+5. Query ArXiv API for recent academic papers.
 
-Uses PyPDF2 for text extraction.
+6. Controller logic routes queries dynamically to agents based on intent keywords.
 
-For intelligent search: Embeds document chunks and queries with Sentence Transformers and finds most relevant text via cosine similarity.
+7. Large Language Model (Groq) synthesizes rich, multi-source answers.
 
-### Retrieval Logic:
+8. Detailed structured logging for debugging and auditing.
 
-On upload, PDF is chunked and encoded into embeddings.
+9. Simple React-less frontend for upload, question input, and answer display.
 
-On query, question is embedded and compared to all PDF chunks; returns the best-matched chunk(s) as the answer.
+## Architecture
+#### Frontend: Simple HTML/JS UI for PDF upload and user query.
 
-## Instructions to Run
-### Create a virtual environment
+#### Backend: FastAPI app handling orchestration, agents, embeddings, and logging.
+
+### Agents:
+
+- PDF RAG agent using FAISS vector similarity search.
+
+- Web Search agent calling SerpAPI API.
+
+- ArXiv agent fetching scientific papers and abstracts.
+
+- LLM synthesis using Groq API.
+
+- Logging and traceability via structured in-memory log store.
+
+## Getting Started
+### Prerequisites
+- Python 3.8+
+
+- API keys for:
+
+Groq API (LLM)
+
+SerpAPI (Google search)
+
+
+#### Create and activate virtual environment:
+
 python -m venv venv
-source venv/bin/activate        # (Unix/macOS)
-venv\Scripts\activate           # (Windows)
-### Install Dependencies
+source venv/bin/activate     # Windows: venv\Scripts\activate
+### Install dependencies:
+
 pip install -r requirements.txt
-pip install fastapi uvicorn PyPDF2 sentence-transformers scikit-learn numpy
-### Start the Backend
+or manually:
+
+pip install fastapi uvicorn python-dotenv sentence-transformers faiss-cpu numpy PyPDF2 requests pydantic
+### Create .env file in root with keys:
+
+- GROQ_API_KEY
+- SERPAPI_KEY
+- MAX_UPLOAD_MB=15
+- RAG_TOP_K=3
+### Running the Backend Server
 python -m uvicorn api.endpoints:app --reload
-### Open the Frontend
+Open http://localhost:8000 to check the health endpoint.
+
+### Running the Frontend
 Open frontend/index.html in your browser.
 
+### Usage
+- Upload your PDF document.
 
-Upload a PDF, type a question, and get your answer instantly on the page.
+- Ask questions related to the PDF or general queries.
 
-## Dependencies
-FastAPI
+- See rich, synthesized answers citing multiple sources.
 
-Uvicorn
+- Explore agents used and rationale for transparent results.
 
-PyPDF2
+### Controller Logic
+- The backend controller routes queries using simple rules:
 
-sentence-transformers
+- If a PDF is uploaded and the user requests a summary or references the document → use PDF RAG agent.
 
-scikit-learn
+- If the query contains "recent papers" or "arxiv" → query ArXiv agent.
 
-numpy
+- If the query mentions "latest news" or "recent developments" → call Web Search agent.
 
-Frontend: HTML5, CSS3, JavaScript (no frameworks)
+- Otherwise, use a combination of agents for a comprehensive answer.
 
-Make sure Python 3.8+ is installed.
+### Logging & Traceability
+- All requests and agent decisions are logged with timestamps.
 
-## Dataset Information
-Primary Data Input:
+- Logs include query text, agents called, retrieved document/chunk IDs, and answer snippets.
 
-Any user-uploaded PDF document (research papers, technical reports, resumes, etc.)
+- Logs accessible through the /logs endpoint for auditing.
 
-### How it's used:
+- Helps debugging, monitoring usage, and future improvements.
 
-The PDF is processed on-the-fly; no pre-existing dataset is required.
+### Trade-Offs and Extensions
+- Current in-memory PDF storage means uploads are ephemeral; can extend to DB/storage.
 
-For demo/testing, try any text-rich PDF.
+- Rate limits on external API calls handled with fallback mechanisms.
 
-## Expected Outputs
-Smart Summaries: Summarizes entire document or specific sections on command.
+- Chunking fixed at ~500 words; can be improved with semantic chunking.
 
-Focused Answers: Returns the most relevant chunk from the document, using true semantic (vector-based) search.
+- Can be extended with user authentication, security, and persistent logging.
 
-Keyword Support: Handles fact, definition, and open-ended questions.
+- It can be upgraded for richer UI/UX or integrated into React/Vue.
 
-Web UI: Answers and file information are displayed in clear, styled boxes in the browser.
-
-### Example:
-
-Q: What experience does the candidate have?
-
-A: Returns the candidate's skill, tool, and project highlights from the resume PDF.
-
-
-
-### Credits
-Powered by FastAPI and PyPDF2.
-
-Inspired by the open-source ML community.
-
-PDFSage – Turn your PDFs into instant knowledge!
+### About NebulaByte PDFs
+NebulaByte is a domain-specialized PDF dataset used here to demo the system’s multi-domain capabilities. These PDFs are:
+- Ingested via upload.
+- Extracted & chunked for retrieval.
+- Embedded with sentence-transformer for semantic vector search.
+- Used to validate retrieval quality on domain-specific content.
