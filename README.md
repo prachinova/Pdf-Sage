@@ -1,63 +1,92 @@
 # Pdf-Sage
-PDFSage: Multi-Agent AI PDF Q&A System
-PDFSage is your intelligent assistant for document and web question-answering.
-Upload PDFs, ask questions, and receive insightful answers powered by advanced natural language processing and information extraction!
+## Project Overview
+PDFSage is an intelligent web tool to extract key insights from your PDF documents using advanced natural language processing. Upload any PDF, ask questions, and get context-aware answers or summaries, all through a modern, easy-to-use interface. Suitable for students, researchers, or anyone who wants smarter document analysis and understanding.
 
-Features
-📄 PDF Understanding: Upload any PDF and get smart summaries or detailed answers.
+## Architecture & Approach
+### Frontend:
 
-🧠 Contextual Q&A: Ask questions about your PDF or on general topics.
+Pure HTML, CSS, and vanilla JavaScript UI.
 
-🔎 Relevant Info Extraction: PDFSage finds the most relevant content for your queries.
+Allows PDF upload and interactive Q&A.
 
-🟪 Modern, Beautiful Web UI: User-friendly, responsive design with upload and instant feedback.
+### Backend:
 
-Quick Start
-Clone the Repository:
+FastAPI REST API with endpoints for PDF upload and question answering.
 
-text
-git clone https://github.com/yourusername/pdfsage.git
-cd pdfsage
-Install Requirements:
+Uses PyPDF2 for text extraction.
 
-text
-pip install fastapi uvicorn PyPDF2
-Run the Backend:
+For intelligent search: Embeds document chunks and queries with Sentence Transformers and finds most relevant text via cosine similarity.
 
-text
+### Retrieval Logic:
+
+On upload, PDF is chunked and encoded into embeddings.
+
+On query, question is embedded and compared to all PDF chunks; returns the best-matched chunk(s) as the answer.
+
+## Instructions to Run
+### Create a virtual environment
+python -m venv venv
+source venv/bin/activate        # (Unix/macOS)
+venv\Scripts\activate           # (Windows)
+### Install Dependencies
+pip install -r requirements.txt
+pip install fastapi uvicorn PyPDF2 sentence-transformers scikit-learn numpy
+### Start the Backend
 python -m uvicorn api.endpoints:app --reload
-Launch the Frontend:
-
+### Open the Frontend
 Open frontend/index.html in your browser.
 
-Usage
-Upload a PDF: Click "Choose File", select your PDF, then "Upload PDF".
 
-Ask a Question: Type your question (e.g., "summarize the pdf" or "What is the conclusion?") and click "Get Answer".
+Upload a PDF, type a question, and get your answer instantly on the page.
 
-See Instant Results: Answers and summaries will appear in a styled answer box.
+## Dependencies
+FastAPI
 
-Project Structure
-text
-pdfsage/
-├── api/
-│   └── endpoints.py         # FastAPI backend for upload and Q&A
-├── frontend/
-│   └── index.html           # Beautiful web interface
-├── README.md
-Customization
-Add more NLP or ML models for advanced analysis.
+Uvicorn
 
-Connect web or arXiv agents for live Q&A.
+PyPDF2
 
-Modify the look and feel in frontend/index.html (HTML/CSS/JS).
+sentence-transformers
 
-License
-MIT License
+scikit-learn
 
-Credits
-Built with FastAPI and PyPDF2.
+numpy
 
-UI inspired by clean and modern design patterns.
+Frontend: HTML5, CSS3, JavaScript (no frameworks)
 
-Made with 💜 by [Your Name/Handle]
+Make sure Python 3.8+ is installed.
+
+## Dataset Information
+Primary Data Input:
+
+Any user-uploaded PDF document (research papers, technical reports, resumes, etc.)
+
+### How it's used:
+
+The PDF is processed on-the-fly; no pre-existing dataset is required.
+
+For demo/testing, try any text-rich PDF.
+
+## Expected Outputs
+Smart Summaries: Summarizes entire document or specific sections on command.
+
+Focused Answers: Returns the most relevant chunk from the document, using true semantic (vector-based) search.
+
+Keyword Support: Handles fact, definition, and open-ended questions.
+
+Web UI: Answers and file information are displayed in clear, styled boxes in the browser.
+
+### Example:
+
+Q: What experience does the candidate have?
+
+A: Returns the candidate's skill, tool, and project highlights from the resume PDF.
+
+
+
+### Credits
+Powered by FastAPI and PyPDF2.
+
+Inspired by the open-source ML community.
+
+PDFSage – Turn your PDFs into instant knowledge!
