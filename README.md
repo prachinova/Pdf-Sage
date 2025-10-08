@@ -1,6 +1,6 @@
-# PDFSage - Multi-Agent AI PDF Question Answering System
+# PDFy - Multi-Agent AI PDF Question Answering System
 ## Overview
-PDFSage is a powerful AI system that enables interactive question answering over domain-specific PDFs, combined with real-time web and scientific paper search. It utilizes retrieval-augmented generation (RAG) on uploaded documents alongside live web (SerpAPI) and ArXiv agents, synthesizing answers via Groq’s large language model API. The system smartly orchestrates multiple agents based on query content and provides transparent logging and traceability.
+PDFy is a powerful AI system that enables interactive question answering over domain-specific PDFs, combined with real-time web and scientific paper search. It utilizes retrieval-augmented generation (RAG) on uploaded documents alongside live web (SerpAPI) and ArXiv agents, synthesizing answers via Groq’s large language model API. The system smartly orchestrates multiple agents based on query content and provides transparent logging and traceability.
 
 ## Features
 1. Uploads PDF files, automatically extract and chunk text.
