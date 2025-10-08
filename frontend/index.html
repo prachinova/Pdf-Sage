@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PDFSage - Fresh Gen Z Vibe</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #fceabb, #f8b500);
+      margin: 0;
+      padding: 30px 20px;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      color: #402f4a;
+    }
+
+    main {
+      background: #fff0f7;
+      padding: 35px 40px;
+      border-radius: 28px;
+      box-shadow: 0 20px 40px rgba(252, 234, 187, 0.4);
+      max-width: 640px;
+      width: 100%;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 1rem;
+      font-weight: 800;
+      font-size: 2.6rem;
+      color: #572b6e;
+      text-shadow: 1px 1px 4px #f6a9c9;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 1.1rem;
+      color: #6f3d7a;
+    }
+
+    input[type="file"],
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 18px;
+      border-radius: 20px;
+      border: 2px solid #ffd6e8;
+      background: #fff;
+      font-size: 1rem;
+      color: #613358;
+      box-shadow: inset 0 0 12px #ffd6e8;
+      transition: 0.3s;
+      margin-bottom: 18px;
+      outline: none;
+    }
+
+    input[type="file"]:focus,
+    input[type="text"]:focus {
+      border-color: #f6a9c9;
+      box-shadow: 0 0 8px #f6a9c9;
+      background: #fff5f9;
+      color: #59295e;
+    }
+
+    button {
+      background: linear-gradient(135deg, #fa709a, #fee140);
+      color: #48273f;
+      font-weight: 700;
+      font-size: 1.05rem;
+      border: none;
+      padding: 12px 36px;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 8px 15px rgba(250, 112, 154, 0.5);
+      transition: all 0.3s ease;
+      user-select: none;
+      display: inline-block;
+      margin-top: 6px;
+      margin-bottom: 16px;
+    }
+
+    button:hover {
+      box-shadow: 0 12px 20px rgba(250, 112, 154, 0.7);
+      transform: translateY(-3px);
+      background: linear-gradient(135deg, #f993b4, #ffea72);
+      color: #3c2040;
+    }
+
+    #uploadStatus {
+      font-weight: 700;
+      font-size: 1rem;
+      text-align: center;
+      color: #9a3c7a;
+      min-height: 1.2em;
+      margin-bottom: 12px;
+    }
+
+    #uploadStatus.error {
+      color: #de4560;
+    }
+
+    #pdfInfo {
+      text-align: center;
+      font-style: italic;
+      color: #7d427a;
+      font-size: 0.95rem;
+      margin-bottom: 15px;
+    }
+
+    #answer {
+      background: #fff0f7;
+      border: 2px solid #f7c0dc;
+      padding: 24px;
+      border-radius: 28px;
+      font-size: 1.1rem;
+      min-height: 170px;
+      white-space: pre-wrap;
+      color: #612e6d;
+      box-shadow: 0 8px 25px rgba(247, 168, 202, 0.4);
+    }
+
+    #agentsUsed,
+    #decisionRationale {
+      margin-top: 16px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #a65e92;
+      text-align: center;
+      user-select: none;
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <h1>PDFy</h1>
+
+    <label for="pdfFile">Upload a PDF Document</label>
+    <input type="file" id="pdfFile" accept=".pdf" />
+    <button type="button" onclick="uploadPdf()">Upload</button>
+    <div id="uploadStatus"></div>
+    <div id="pdfInfo"></div>
+
+    <label for="question">Ask a Question</label>
+    <input type="text" id="question" placeholder="Type your question here..." />
+    <button type="button" onclick="askQuestion()">Get Answer</button>
+
+    <pre id="answer" aria-live="polite" role="region">Upload a PDF and ask a question to see answers here.</pre>
+    <div id="agentsUsed"></div>
+    <div id="decisionRationale"></div>
+  </main>
+
+  <script>
+    let uploadedPdfId = "";
+
+    async function uploadPdf() {
+      const fileInput = document.getElementById("pdfFile");
+      const uploadStatus = document.getElementById("uploadStatus");
+      const pdfInfo = document.getElementById("pdfInfo");
+
+      uploadStatus.classList.remove("error");
+      uploadStatus.textContent = "";
+      pdfInfo.textContent = "";
+
+      if (!fileInput.files.length) {
+        alert("Please select a PDF file.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", fileInput.files[0]);
+
+      uploadStatus.textContent = "Uploading...";
+      try {
+        const res = await fetch("http://127.0.0.1:8000/upload_pdf", {
+          method: "POST",
+          body: formData,
+        });
+
+        const json = await res.json();
+        if (res.ok) {
+          uploadedPdfId = json.pdf_id;
+          pdfInfo.textContent = `Uploaded PDF: ${uploadedPdfId}`;
+          uploadStatus.textContent = "Upload successful!";
+        } else {
+          uploadStatus.classList.add("error");
+          uploadStatus.textContent = `Upload failed: ${json.message || "Unknown error"}`;
+        }
+      } catch (e) {
+        uploadStatus.classList.add("error");
+        uploadStatus.textContent = `Upload error: ${e.message}`;
+      }
+    }
+
+    async function askQuestion() {
+      const questionInput = document.getElementById("question");
+      const answerBox = document.getElementById("answer");
+      const agentsBox = document.getElementById("agentsUsed");
+      const rationaleBox = document.getElementById("decisionRationale");
+
+      const question = questionInput.value.trim();
+      if (!question) {
+        alert("Please enter a question!");
+        return;
+      }
+
+      answerBox.textContent = "Thinking...";
+      agentsBox.textContent = "";
+      rationaleBox.textContent = "";
+
+      try {
+        const form = new URLSearchParams();
+        form.append("query", question);
+        if (uploadedPdfId) form.append("pdf_id", uploadedPdfId);
+
+        const res = await fetch("http://127.0.0.1:8000/ask", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: form.toString(),
+        });
+
+        const json = await res.json();
+        answerBox.textContent = json.answer || "No answer found.";
+        agentsBox.textContent = json.agents_used ? `Agents Used: ${json.agents_used.join(", ")}` : "";
+        rationaleBox.textContent = json.rationale ? `Rationale: ${json.rationale}` : "";
+      } catch (e) {
+        answerBox.textContent = `Error fetching answer: ${e.message}`;
+      }
+    }
+  </script>
+</body>
+
+</html>
